@@ -7,8 +7,8 @@
     artist: "Kirble",
     context: "Recherches récentes",
     bio: "Léa Texier écrit. Et comme elle est très amoureuse, elle a écrit une chanson.",
-    artworkSmall: "assets/cover-512.webp",
-    artworkLarge: "assets/cover.webp",
+    artwork: "assets/cover-600.jpg",   // JPEG : iOS n'affiche pas le WebP dans le Dynamic Island
+    artworkPng: "assets/icon-512.png",
   };
 
   const $ = (id) => document.getElementById(id);
@@ -42,6 +42,20 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toastEl.classList.remove("on"), 1800);
   };
+
+  // ---------- Pochette : le plus grand carré qui tient dans la zone ----------
+  const artZone = document.querySelector(".art-zone");
+  const art = document.querySelector(".art");
+  const fitArt = () => {
+    const cs = getComputedStyle(artZone);
+    const h = artZone.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const w = artZone.clientWidth;
+    art.style.setProperty("--art", `${Math.max(0, Math.floor(Math.min(w, h)))}px`);
+  };
+  if ("ResizeObserver" in window) new ResizeObserver(fitArt).observe(artZone);
+  window.addEventListener("resize", fitArt);
+  window.addEventListener("orientationchange", fitArt);
+  fitArt();
 
   // ---------- Lecture ----------
   let duration = 0;
@@ -101,7 +115,7 @@
   progress.addEventListener("pointerdown", (e) => {
     scrubbing = true;
     progress.classList.add("scrubbing");
-    progress.setPointerCapture(e.pointerId);
+    try { progress.setPointerCapture(e.pointerId); } catch (_) {}
     seekFromEvent(e);
   });
   progress.addEventListener("pointermove", (e) => { if (scrubbing) seekFromEvent(e); });
@@ -175,7 +189,7 @@
     const isOpen = sheet.classList.contains("open");
     drag = { y0: e.clientY, t0: performance.now(), base: isOpen ? 0 : closedY(), isOpen, moved: false, lastY: e.clientY, lastT: performance.now(), vy: 0 };
     sheet.classList.add("dragging");
-    (fromBody ? body : handle).setPointerCapture(e.pointerId);
+    try { (fromBody ? body : handle).setPointerCapture(e.pointerId); } catch (_) {}
   };
   const moveDrag = (e) => {
     if (!drag) return;
@@ -216,27 +230,44 @@
   body.addEventListener("pointerup", endDrag);
   body.addEventListener("pointercancel", endDrag);
 
-  // ---------- Media Session (écran verrouillé, AirPods) ----------
+  // ---------- Media Session (Dynamic Island, écran verrouillé, AirPods) ----------
+  const abs = (u) => new URL(u, location.href).href;
+  const setMetadata = () => {
+    if (!("mediaSession" in navigator)) return;
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: CONFIG.title,
+        artist: CONFIG.artist,
+        album: CONFIG.title,
+        artwork: [
+          { src: abs(CONFIG.artwork), sizes: "600x600", type: "image/jpeg" },
+          { src: abs(CONFIG.artworkPng), sizes: "512x512", type: "image/png" },
+        ],
+      });
+    } catch (_) {}
+  };
   const setPlaybackState = (s) => { if ("mediaSession" in navigator) try { navigator.mediaSession.playbackState = s; } catch (_) {} };
+  const setPosition = () => {
+    if (!("mediaSession" in navigator) || !navigator.mediaSession.setPositionState) return;
+    const d = audio.duration;
+    if (!isFinite(d) || d <= 0) return;
+    try { navigator.mediaSession.setPositionState({ duration: d, playbackRate: audio.playbackRate, position: Math.min(d, audio.currentTime) }); } catch (_) {}
+  };
   if ("mediaSession" in navigator) {
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: CONFIG.title,
-      artist: CONFIG.artist,
-      album: CONFIG.title,
-      artwork: [
-        { src: CONFIG.artworkSmall, sizes: "512x512", type: "image/webp" },
-        { src: CONFIG.artworkLarge, sizes: "1000x1000", type: "image/webp" },
-        { src: "assets/icon-512.png", sizes: "512x512", type: "image/png" },
-      ],
-    });
+    setMetadata();
+    // iOS Safari ne retient les métadonnées que si elles sont (re)posées quand la lecture démarre.
+    audio.addEventListener("play", () => { setMetadata(); setPosition(); });
+    audio.addEventListener("playing", setMetadata);
+    audio.addEventListener("loadedmetadata", setPosition);
+    audio.addEventListener("seeked", setPosition);
+    audio.addEventListener("ratechange", setPosition);
     const on = (a, f) => { try { navigator.mediaSession.setActionHandler(a, f); } catch (_) {} };
     on("play", play);
     on("pause", () => audio.pause());
-    on("previoustrack", () => { audio.currentTime = 0; });
-    on("nexttrack", () => { audio.currentTime = 0; });
-    on("seekto", (d) => { if (d.seekTime != null) audio.currentTime = d.seekTime; });
-    on("seekbackward", (d) => { audio.currentTime = Math.max(0, audio.currentTime - (d.seekOffset || 10)); });
-    on("seekforward", (d) => { audio.currentTime = Math.min(duration, audio.currentTime + (d.seekOffset || 10)); });
+    on("previoustrack", () => { audio.currentTime = 0; setPosition(); });
+    on("nexttrack", () => { audio.currentTime = 0; setPosition(); });
+    on("seekto", (d) => { if (d.seekTime != null) { audio.currentTime = d.seekTime; setPosition(); } });
+    // Pas de seekbackward/seekforward : iOS afficherait « ±10 s » à la place de précédent/suivant.
   }
 
   renderTime(0);
