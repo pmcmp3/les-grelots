@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Les grelots · Kirble</title>
+  <meta name="description" content="Kirble — Les grelots">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#3a4e8c">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Les grelots">
+  <meta property="og:type" content="music.song">
+  <meta property="og:title" content="Les grelots">
+  <meta property="og:description" content="Kirble · Titre">
+  <meta property="og:image" content="assets/cover-og.jpg">
+  <meta name="twitter:card" content="summary">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icon-192.png">
+  <link rel="preload" href="fonts/SpotifyMix-Bold.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/SpotifyMix-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/cover.webp" as="image">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<main class="screen" id="screen">
+
+  <header class="topbar">
+    <button class="icon-btn" id="btn-collapse" aria-label="Réduire">
+      <svg viewBox="0 0 24 24"><path d="M3 8.5 12 17l9-8.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="topbar-title" id="context-label">Recherches récentes</div>
+    <button class="icon-btn" id="btn-more" aria-label="Plus d'options">
+      <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+    </button>
+  </header>
+
+  <section class="art-zone">
+    <div class="art">
+      <img id="cover" src="assets/cover.webp" alt="Pochette — Les grelots" width="1000" height="1000" decoding="async">
+    </div>
+  </section>
+
+  <section class="meta">
+    <div class="meta-text">
+      <h1 class="title" id="track-title">Les grelots</h1>
+      <p class="artist" id="track-artist">Kirble</p>
+    </div>
+    <button class="like" id="btn-like" aria-label="Retirer de Titres likés" data-liked="true">
+      <svg class="ic-added" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#1ed760"/><path d="M6.8 12.6l3.3 3.2 7.1-7.4" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="ic-add" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5v9M7.5 12h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </section>
+
+  <section class="progress" id="progress" role="slider" aria-label="Position" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div class="track"><div class="fill" id="fill"></div><div class="thumb" id="thumb"></div></div>
+    <div class="times"><span id="t-elapsed">0:00</span><span id="t-remaining">-0:00</span></div>
+  </section>
+
+  <section class="controls">
+    <button class="ctl shuffle" id="btn-shuffle" aria-label="Lecture aléatoire" data-on="true">
+      <svg viewBox="0 0 24 24"><path d="M3 6h2.6c1.3 0 2.5.6 3.3 1.6l5.3 7.2c.6.9 1.7 1.4 2.8 1.4H21M3 18h2.6c1.3 0 2.5-.6 3.3-1.6l.9-1.2M14.2 8.8l.9-1.2c.7-1 1.9-1.6 3.1-1.6H21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 3l3.4 3L18 9M18 15l3.4 3L18 21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="dot"></span>
+    </button>
+    <button class="ctl" id="btn-prev" aria-label="Précédent">
+      <svg viewBox="0 0 24 24"><path d="M4 4h2.6v16H4zM20 4.6v14.8L8.4 12z"/></svg>
+    </button>
+    <button class="play" id="btn-play" aria-label="Lecture">
+      <svg class="ic-play" viewBox="0 0 24 24"><path d="M7 3.8v16.4L20.5 12z"/></svg>
+      <svg class="ic-pause" viewBox="0 0 24 24"><path d="M5.5 4h4.2v16H5.5zM14.3 4h4.2v16h-4.2z"/></svg>
+    </button>
+    <button class="ctl" id="btn-next" aria-label="Suivant">
+      <svg viewBox="0 0 24 24"><path d="M17.4 4H20v16h-2.6zM4 4.6v14.8L15.6 12z"/></svg>
+    </button>
+    <button class="ctl" id="btn-timer" aria-label="Minuteur de veille">
+      <svg viewBox="0 0 24 24"><path d="M9.5 2.5h5M12 2.5v2.4M18.6 6.8l1.5-1.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="13.4" r="7.6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 9.6v4.2l2.6 1.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </section>
+
+  <section class="bottom-row">
+    <button class="icon-btn small" id="btn-devices" aria-label="Se connecter à un appareil">
+      <svg viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="14" height="11" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M6 19h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><rect x="15.5" y="9.5" width="6" height="10" rx="1.4" fill="var(--bg-sheet-solid)" stroke="currentColor" stroke-width="1.8"/><circle cx="18.5" cy="15.8" r="1"/></svg>
+    </button>
+    <div class="spacer"></div>
+    <button class="icon-btn small" id="btn-share" aria-label="Partager">
+      <svg viewBox="0 0 24 24"><path d="M12 3.5v11M8.2 7.2 12 3.4l3.8 3.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 10H6.4A1.9 1.9 0 0 0 4.5 11.9v6.6a1.9 1.9 0 0 0 1.9 1.9h11.2a1.9 1.9 0 0 0 1.9-1.9v-6.6A1.9 1.9 0 0 0 17.6 10H16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button class="icon-btn small" id="btn-queue" aria-label="File d'attente">
+      <svg viewBox="0 0 24 24"><path d="M3 6.5h18M3 12h18M3 17.5h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+  </section>
+
+  <div class="sheet-gap" aria-hidden="true"></div>
+</main>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="sheet" id="sheet" aria-label="À propos de l'artiste">
+  <div class="sheet-handle" id="sheet-handle">
+    <span class="grab"></span>
+    <h2 class="sheet-title">Découvrez <span id="sheet-artist">Kirble</span></h2>
+    <svg class="chev" viewBox="0 0 24 24"><path d="M4 15l8-8 8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+  <div class="sheet-body" id="sheet-body">
+    <div class="about-card">
+      <div class="about-photo">
+        <img src="assets/artist.webp" alt="Kirble" width="1000" height="1000" loading="lazy" decoding="async">
+        <span class="about-label">À propos de l'artiste</span>
+      </div>
+      <div class="about-content">
+        <div class="about-head">
+          <div>
+            <h3 class="about-name" id="about-name">Kirble</h3>
+            <p class="about-sub" id="about-sub">Artiste</p>
+          </div>
+          <button class="follow" id="btn-follow" data-on="false">Suivre</button>
+        </div>
+        <p class="about-bio" id="about-bio">Léa Texier écrit. Et comme elle est très amoureuse, elle a écrit une chanson.</p>
+      </div>
+    </div>
+    <div class="credits">
+      <h4>Crédits</h4>
+      <div class="credit-row"><img src="assets/artist-256.webp" alt="" width="40" height="40"><div><strong>Kirble</strong><span>Artiste principale</span></div></div>
+    </div>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<audio id="audio" preload="metadata" playsinline>
+  <source src="assets/les-grelots.mp3" type="audio/mpeg">
+</audio>
+
+<script src="app.js"></script>
+</body>
+</html>
